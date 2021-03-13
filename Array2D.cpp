@@ -29,6 +29,46 @@ private:
     std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimePoint;
 };
 
+template<typename Array>
+class ArrayIterator
+{
+public:
+    using ValueType = typename Array::ValueType;
+    using PointerType = ValueType*;
+    using ReferenceType = ValueType&;
+public:
+    ArrayIterator(PointerType ptr)
+        : m_Ptr(ptr){}
+
+    ArrayIterator& operator++(){
+        m_Ptr++;
+        return *this;
+    }
+
+    ReferenceType operator[](int index){
+        return *(m_Ptr + index);
+    }
+
+    PointerType operator->(){
+        return m_Ptr;
+    }
+
+    ReferenceType operator*(){
+        return *m_Ptr;
+    }
+
+    bool operator==(const ArrayIterator& other) const {
+        return m_Ptr == other.m_Ptr;
+    }
+
+    bool operator!=(const ArrayIterator& other) const {
+        return !(*this == other);
+    }
+
+private:
+    PointerType m_Ptr;
+}
+
 //Also a 2D array class using double pointers. The data is allocated on the heap using the new keyword.
 template <typename T>
 class Array2D{
@@ -80,10 +120,28 @@ private:
     T m_data[ROWS*COLS];
 
 public:
+    using ValueType = T;
+    using Iterator = ArrayIterator<Array<T>>;
+
+public:
 
     T& operator()(int row, int col) { return m_data[col + COLS*row]; }
 
     const T& operator()(int row, int col) const { return m_data[col + COLS*row]; }
+
+    Iterator begin()
+    {
+        return Iterator(m_data);
+    }
+
+    Iterator end()
+    {
+        return Iterator(m_data + m_size);
+    }
+
+    T* data() { return m_data; }
+
+    T size() { return ROWS*COLS; }
 
     void print(){
         for(int i=0; i<ROWS*COLS; i++){
@@ -92,14 +150,23 @@ public:
             std::cout<<m_data[i] << ", ";
         }
     }
-
-    T* data() { return m_data; }
-
-    T size() { return ROWS*COLS; }
 };
 
 int main()
 {
+    Array2DOptimized<int, 2, 2> arr;
+    arr(0,0) = 5;
+    arr(0,1) = 6;
+    arr(1,0) = 7;
+    arr(2,1) = 8;
+
+    for(Array2DOptimized::Iterator it = arr.begin();
+        it!= arr.end(); it++){
+        std::cout << *it << std::endl;
+    }
+
+
+    /*
     {
         Timer timer;
         for(int i=0; i<1000000; i++)
@@ -115,6 +182,7 @@ int main()
             Array2DOptimized<int, 100, 100> arr;
         }
     }
+    */
 
     return 0;
 }
