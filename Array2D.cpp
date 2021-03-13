@@ -2,6 +2,7 @@
 #include <cstring>
 #include <chrono>
 
+//Timer class. When created the timer starts. The timer stops when destroyed.
 class Timer
 {
 public:
@@ -29,11 +30,12 @@ private:
     std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimePoint;
 };
 
-template<typename Array>
+//Iterator for our Array class.
+template<typename  T>
 class ArrayIterator
 {
 public:
-    using ValueType = typename Array::ValueType;
+    using ValueType = T;
     using PointerType = ValueType*;
     using ReferenceType = ValueType&;
 public:
@@ -41,8 +43,14 @@ public:
         : m_Ptr(ptr){}
 
     ArrayIterator& operator++(){
-        m_Ptr++;
+        *m_Ptr++;
         return *this;
+    }
+
+    ArrayIterator operator++(int){
+        ArrayIterator it = *this;
+        ++(*this);
+        return it;
     }
 
     ReferenceType operator[](int index){
@@ -67,7 +75,7 @@ public:
 
 private:
     PointerType m_Ptr;
-}
+};
 
 //Also a 2D array class using double pointers. The data is allocated on the heap using the new keyword.
 template <typename T>
@@ -121,7 +129,7 @@ private:
 
 public:
     using ValueType = T;
-    using Iterator = ArrayIterator<Array<T>>;
+    using Iterator = ArrayIterator<T>;
 
 public:
 
@@ -158,15 +166,18 @@ int main()
     arr(0,0) = 5;
     arr(0,1) = 6;
     arr(1,0) = 7;
-    arr(2,1) = 8;
+    arr(1,1) = 8;
 
-    for(Array2DOptimized::Iterator it = arr.begin();
+    //iterator for loop.
+    for(Array2DOptimized<int, 2, 2>::Iterator it = arr.begin();
         it!= arr.end(); it++){
         std::cout << *it << std::endl;
     }
 
+    //range based for loop.
+    for(int val: arr)
+        std::cout << val << std::endl;
 
-    /*
     {
         Timer timer;
         for(int i=0; i<1000000; i++)
@@ -182,7 +193,6 @@ int main()
             Array2DOptimized<int, 100, 100> arr;
         }
     }
-    */
 
     return 0;
 }
