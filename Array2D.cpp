@@ -1,83 +1,120 @@
 #include <iostream>
-#include <type_traits>
+#include <cstring>
+#include <chrono>
 
-class Array2D{
+class Timer
+{
+public:
+    Timer()
+    {
+        m_StartTimePoint = std::chrono::high_resolution_clock::now();
+    }
+
+    ~Timer()
+    {
+        Stop();
+    }
+
+    void Stop()
+    {
+        auto endTimePoint = std::chrono::high_resolution_clock::now();
+        auto start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimePoint).time_since_epoch().count();
+        auto stop = std::chrono::time_point_cast<std::chrono::microseconds>(endTimePoint).time_since_epoch().count();
+        auto duration = stop - start;
+        auto duration_ms = duration*0.001;
+        std::cout << duration << "us " << duration_ms << "ms" << std::endl;
+    }
 
 private:
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimePoint;
+};
+
+//Also a 2D array class using double pointers. The data is allocated on the heap using the new keyword.
+template <typename T>
+class Array2D{
+private:
     int numRows, numCols;
-    int** data;
+    T** m_data;
 
 public:
     Array2D(int row, int col)
         :numRows(row), numCols(col)
     {
-        data = new int*[numRows];
+        m_data = new T*[numRows];
         for(int i=0; i<numRows; i++){
-            data[i] = new int[numCols];
+            m_data[i] = new int[numCols];
         }
     }
 
     ~Array2D(){
-        std::cout << "deleted array" << std::endl;
+        //std::cout << "deleted array" << std::endl;
         for(int i=0; i<numRows; i++){
-            delete[] data[i];
+            delete[] m_data[i];
         }
-        delete[] data;
+        delete[] m_data;
     }
 
     void insert(int row, int col, int val){
-        data[row][col] = val;
+        m_data[row][col] = val;
     }
 
     int get(int row, int col){
-        return data[row][col];
+        return m_data[row][col];
     }
 
     void print(){
         for(int i=0; i<numRows; i++){
             for(int j=0; j<numCols; j++){
-                std::cout << data[i][j] << ", ";
+                std::cout << m_data[i][j] << ", ";
             }
             std::cout << std::endl;
         }
     }
 };
 
+//Templated Array class. The array containing the data is stored on the stack.
 template <typename T, int ROWS, int COLS>
 class Array2DOptimized {
 private:
-    T* data;
+    int m_size = ROWS*COLS;
+    T m_data[ROWS*COLS];
 
 public:
-    Array2DOptimized()
-    {
-        data = new T[ROWS*COLS];
-    }
 
-    T& operator()(int row, int col) const {
-        return data[col + COLS*row];
-    }
+    T& operator()(int row, int col) { return m_data[col + COLS*row]; }
 
-    ~Array2DOptimized(){
-        std::cout << "deleted array" << std::endl;
-        delete[] data;
-    }
+    const T& operator()(int row, int col) const { return m_data[col + COLS*row]; }
 
     void print(){
         for(int i=0; i<ROWS*COLS; i++){
             if(i%COLS == 0)
                 std::cout<<std::endl;
-            std::cout<<data[i] << ", ";
+            std::cout<<m_data[i] << ", ";
         }
     }
+
+    T* data() { return m_data; }
+
+    T size() { return ROWS*COLS; }
 };
 
 int main()
 {
-    Array2DOptimized<float, 5, 3> myArr;
-    myArr(0,0) = 1.5;
-    myArr(0,1) = 2.3;
-    myArr.print();
+    {
+        Timer timer;
+        for(int i=0; i<1000000; i++)
+        {
+            Array2D<int> arr(100,100);
+        }
+    }
+
+    {
+        Timer timer;
+        for(int i=0; i<1000000; i++)
+        {
+            Array2DOptimized<int, 100, 100> arr;
+        }
+    }
 
     return 0;
 }
