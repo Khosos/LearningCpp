@@ -3,6 +3,7 @@
 #include <chrono>
 #include "Vector.h"
 #include "Array2D.h"
+#include "LinkedList.h"
 
 //Timer class. When created the timer starts. The timer stops when destroyed.
 class Timer
@@ -34,6 +35,22 @@ private:
 
 int main()
 {
+
+    //Testing linked list
+    Node<int>* head = new Node<int>(5);
+    Node<int>* second = new Node<int>(10);
+    Node<int>* third = new Node<int>(15);
+    head->next = second;
+    second->next = third;
+    third->next = nullptr;
+
+    Node<int>* dummy = head;
+    while(dummy != nullptr){
+        std::cout << dummy->val << std::endl;
+        dummy = dummy->next;
+     }
+
+    //Created optimized 2D Array.
     Array2DOptimized<float, 2, 2> arr;
     arr(0,0) = 5;
     arr(0,1) = 6;
@@ -50,6 +67,7 @@ int main()
     for(int val: arr)
         std::cout << val << std::endl;
 
+    //The timer starts when consructed. And stops when destroyed. It is deleted in this scope.
     {
         Timer timer;
         for(int i=0; i<1000000; i++)
@@ -66,10 +84,12 @@ int main()
         }
     }
 
+    //Testing vector class. So far only push_back is created.
     Vector<my_int> a;
     a.push_back(my_int(1));
     a.push_back(my_int(1));
     a.push_back(my_int(1));
+    */
 
     std::cin.get();
 
