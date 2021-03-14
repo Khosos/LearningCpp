@@ -73,6 +73,10 @@ public:
         delete[] m_data;
     }
 
+    T& operator()(int row, int col) { return m_data[row][col]; }
+
+    const T& operator()(int row, int col) const { return m_data[row][col]; }
+
     void insert(int row, int col, int val){
         m_data[row][col] = val;
     }

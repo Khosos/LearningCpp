@@ -70,17 +70,19 @@ int main()
     //The timer starts when consructed. And stops when destroyed. It is deleted in this scope.
     {
         Timer timer;
+        Array2D<int> arr(100,100);
         for(int i=0; i<1000000; i++)
         {
-            Array2D<int> arr(100,100);
+            arr.insert(0,0,100);
         }
     }
 
     {
         Timer timer;
+        Array2DOptimized<int, 100, 100> arr;
         for(int i=0; i<1000000; i++)
         {
-            Array2DOptimized<int, 100, 100> arr;
+            arr(0,0) = 100;
         }
     }
 
@@ -89,7 +91,6 @@ int main()
     a.push_back(my_int(1));
     a.push_back(my_int(1));
     a.push_back(my_int(1));
-    */
 
     std::cin.get();
 
